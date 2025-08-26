@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: #f8fafc;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+        .status-dot.connected {
+            background: #10b981;
+        }
+
+        .chat-container {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .question-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .question-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .send-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #e2e8f0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle.active {
+            background: #4f46e5;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle.active .toggle-slider {
+            transform: translateX(25px);
+        }
+
+        .clear-button {
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-button:hover {
+            background: #dc2626;
+        }
+
+        .response-section {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            min-height: 300px;
+            background: #f8fafc;
+        }
+
+        .response-header {
+            background: #e2e8f0;
+            padding: 15px 20px;
+            border-bottom: 1px solid #cbd5e1;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .response-time {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 400;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+
+        .response-content {
+            padding: 20px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 15px;
+            color: #374151;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .response-content strong {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .response-content.empty {
+            color: #9ca3af;
+            font-style: italic;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #ef4444;
+            background: #fef2f2;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #6366f1;
+            animation: typing 1.4s infinite ease-in-out;
+            margin-right: 2px;
+        }
+
+        .typing-indicator:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .footer {
+            background: #f8fafc;
+            padding: 20px 30px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .input-section {
+                flex-direction: column;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Chatbot Interface</h1>
+            <p>Northern Metropolis Assistant</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Checking connection...</span>
+            </div>
+            <div id="modelInfo"></div>
+        </div>
+
+        <div class="chat-container">
+            <div class="input-section">
+                <input 
+                    type="text" 
+                    id="questionInput" 
+                    class="question-input" 
+                    placeholder="Ask me anything about Northern Metropolis..."
+                    maxlength="500"
+                >
+                <button id="sendButton" class="send-button">
+                    Send
+                </button>
+            </div>
+
+            <div class="controls">
+                <div class="toggle-container">
+                    <span>Stream Response:</span>
+                    <div class="toggle active" id="streamToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <button id="clearButton" class="clear-button">Clear Response</button>
+            </div>
+
+            <div class="response-section">
+                <div class="response-header">
+                    <span>AI Response</span>
+                    <div class="response-time" id="responseTime" style="display: none;"></div>
+                </div>
+                <div class="response-content empty" id="responseContent">
+                    Ask a question to get started...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class OllamaChat {
+            constructor() {
+                this.apiUrl = window.location.origin + ':3000/api/chat';
+                this.statusUrl = window.location.origin + ':3000/api/status';
+                this.isStreaming = true;
+                this.isLoading = false;
+                this.startTime = null;
+                this.endTime = null;
+                this.timerInterval = null;
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.checkStatus();
+            }
+
+            initializeElements() {
+                this.questionInput = document.getElementById('questionInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.responseContent = document.getElementById('responseContent');
+                this.streamToggle = document.getElementById('streamToggle');
+                this.clearButton = document.getElementById('clearButton');
+                this.statusDot = document.getElementById('statusDot');
+                this.statusText = document.getElementById('statusText');
+                this.modelInfo = document.getElementById('modelInfo');
+                this.responseTime = document.getElementById('responseTime');
+            }
+
+            bindEvents() {
+                this.sendButton.addEventListener('click', () => this.sendQuestion());
+                this.questionInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendQuestion();
+                    }
+                });
+                this.streamToggle.addEventListener('click', () => this.toggleStream());
+                this.clearButton.addEventListener('click', () => this.clearResponse());
+            }
+
+            async checkStatus() {
+                try {
+                    const response = await fetch(this.statusUrl);
+                    const data = await response.json();
+                    
+                    if (data.status === 'connected') {
+                        this.statusDot.classList.add('connected');
+                        this.statusText.textContent = 'Connected to Ollama';
+                        this.modelInfo.textContent = `Model: ${data.config.model}`;
+                    } else {
+                        this.statusDot.classList.remove('connected');
+                        this.statusText.textContent = 'Disconnected from Ollama';
+                        this.modelInfo.textContent = 'Please check your Ollama server';
+                    }
+                } catch (error) {
+                    this.statusDot.classList.remove('connected');
+                    this.statusText.textContent = 'Connection Error';
+                    this.modelInfo.textContent = 'Cannot reach server';
+                }
+            }
+
+            toggleStream() {
+                this.isStreaming = !this.isStreaming;
+                this.streamToggle.classList.toggle('active', this.isStreaming);
+            }
+
+            clearResponse() {
+                this.responseContent.innerHTML = '<span class="empty">Ask a question to get started...</span>';
+                this.responseContent.classList.add('empty');
+                this.updateResponseTime(null);
+                // Clear any running timer
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            setLoading(loading) {
+                this.isLoading = loading;
+                this.sendButton.disabled = loading;
+                this.questionInput.disabled = loading;
+                
+                if (loading) {
+                    this.sendButton.innerHTML = '<div class="spinner"></div>';
+                } else {
+                    this.sendButton.textContent = 'Send';
+                }
+            }
+
+            async sendQuestion() {
+                const question = this.questionInput.value.trim();
+                if (!question || this.isLoading) return;
+
+                this.setLoading(true);
+                this.responseContent.classList.remove('empty');
+                this.startLiveTimer();
+
+                if (this.isStreaming) {
+                    await this.sendStreamingRequest(question);
+                } else {
+                    await this.sendRegularRequest(question);
+                }
+
+                this.stopLiveTimer();
+                this.setLoading(false);
+                this.questionInput.value = '';
+            }
+
+            async sendStreamingRequest(question) {
+                this.responseContent.innerHTML = '<div class="loading"><div class="spinner"></div>Thinking...</div>';
+
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ question, stream: true })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let responseText = '';
+                    
+                    this.responseContent.innerHTML = '';
+                    let accumulatedText = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n');
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const data = JSON.parse(line.slice(6));
+                                    
+                                    if (data.error) {
+                                        this.displayError(data.error);
+                                        return;
+                                    }
+                                    
+                                    if (data.content) {
+                                        accumulatedText += data.content;
+                                        // Use innerHTML with formatted text for real-time bold rendering
+                                        this.responseContent.innerHTML = this.formatTextWithBold(accumulatedText);
+                                        this.responseContent.scrollTop = this.responseContent.scrollHeight;
+                                    }
+                                    
+                                    if (data.done) {
+                                        return;
+                                    }
+                                } catch (e) {
+                                    // Ignore parsing errors for incomplete chunks
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    this.displayError(error.message);
+                }
+            }
+
+            async sendRegularRequest(question) {
+                this.responseContent.innerHTML = '<div class="loading"><div class="spinner"></div>Processing your question...</div>';
+
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ question, stream: false })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.setResponseContent(data.response);
+                        // Don't override the live timer with backend time for better UX
+                        // The live timer will show the actual user experience time
+                    } else {
+                        this.displayError(data.error || 'Unknown error occurred');
+                    }
+                } catch (error) {
+                    this.displayError(error.message);
+                }
+            }
+
+            displayError(message) {
+                this.responseContent.innerHTML = `<div class="error">❌ Error: ${message}</div>`;
+            }
+
+            // Update response time display
+            updateResponseTime(milliseconds, isLive = false) {
+                if (milliseconds === null) {
+                    this.responseTime.textContent = '';
+                    this.responseTime.style.display = 'none';
+                } else {
+                    let timeText;
+                    if (milliseconds < 1000) {
+                        timeText = `${milliseconds}ms`;
+                    } else {
+                        timeText = `${(milliseconds / 1000).toFixed(1)}s`;
+                    }
+                    const prefix = isLive ? 'Elapsed: ' : 'Response time: ';
+                    this.responseTime.textContent = `${prefix}${timeText}`;
+                    this.responseTime.style.display = 'block';
+                    
+                    // Add pulsing animation for live timer
+                    if (isLive) {
+                        this.responseTime.style.animation = 'pulse 1s infinite';
+                    } else {
+                        this.responseTime.style.animation = 'none';
+                    }
+                }
+            }
+
+            // Start live timer that updates every 100ms
+            startLiveTimer() {
+                this.startTime = performance.now();
+                this.updateResponseTime(0, true);
+                
+                this.timerInterval = setInterval(() => {
+                    if (this.startTime) {
+                        const elapsed = Math.round(performance.now() - this.startTime);
+                        this.updateResponseTime(elapsed, true);
+                    }
+                }, 100); // Update every 100ms for smooth counting
+            }
+
+            // Stop live timer and show final time
+            stopLiveTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
+                if (this.startTime) {
+                    this.endTime = performance.now();
+                    const responseTimeMs = Math.round(this.endTime - this.startTime);
+                    this.updateResponseTime(responseTimeMs, false);
+                    return responseTimeMs;
+                }
+                return null;
+            }
+
+            // Convert markdown-style bold text to HTML
+            formatTextWithBold(text) {
+                // Replace **text** with <strong>text</strong>
+                return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            }
+
+            // Set response content with proper formatting
+            setResponseContent(text) {
+                const formattedText = this.formatTextWithBold(text);
+                this.responseContent.innerHTML = formattedText;
+            }
+        }
+
+        // Initialize the chat interface when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new OllamaChat();
+        });
+    </script>
+</body>
+</html>
