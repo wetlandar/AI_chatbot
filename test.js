@@ -50,7 +50,7 @@ import fs from 'node:fs'
 
 // Configuration for API calls
 const CONFIG = {
-  host: 'https://265b6dc7de84.ngrok-free.app',
+  host: 'http://192.168.50.101:11434',
   model: 'gemma3:custom2',
   timeout: 30000, // 30 seconds
   retries: 3
@@ -205,13 +205,40 @@ async function startHTTPServer(port) {
   const __dirname = path.dirname(__filename)
   
   const server = http.createServer(async (req, res) => {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    // Enhanced CORS configuration for GitHub Pages and ngrok
+    const allowedOrigins = [
+      'https://wetlandar.github.io',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'file://' // For local file access
+    ]
     
+    const origin = req.headers.origin
+    if (allowedOrigins.includes(origin) || !origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin || '*')
+    }
+    
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', [
+      'Content-Type',
+      'Authorization', 
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'Access-Control-Allow-Origin',
+      'ngrok-skip-browser-warning' // Special header for ngrok
+    ].join(', '))
+    res.setHeader('Access-Control-Allow-Credentials', 'false')
+    res.setHeader('Access-Control-Max-Age', '86400') // 24 hours
+    
+    // Add ngrok-specific headers to bypass warning page
+    res.setHeader('ngrok-skip-browser-warning', 'true')
+    
+    // Handle preflight requests
     if (req.method === 'OPTIONS') {
-      res.writeHead(200)
+      res.writeHead(204, {
+        'Content-Length': '0'
+      })
       res.end()
       return
     }
@@ -392,6 +419,5 @@ async function main() {
   
   rl.close()
 }
-
 
 main().catch(console.error)
