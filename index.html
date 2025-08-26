@@ -377,8 +377,8 @@
     <script>
         class OllamaChat {
             constructor() {
-                this.apiUrl = window.location.origin + ':3000/api/chat';
-                this.statusUrl = window.location.origin + ':3000/api/status';
+                this.apiUrl = 'https://devserver-main--aib-aibchatbot.netlify.app/api/chat';
+                this.statusUrl = 'https://devserver-main--aib-aibchatbot.netlify.app/api/status';
                 this.isStreaming = true;
                 this.isLoading = false;
                 this.startTime = null;
@@ -646,4 +646,5 @@
         });
     </script>
 </body>
+
 </html>
