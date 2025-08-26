@@ -416,7 +416,13 @@
 
             async checkStatus() {
                 try {
-                    const response = await fetch(this.statusUrl);
+                    const response = await fetch(this.statusUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin' : '*'
+                        }
+                    });
                     const data = await response.json();
                     
                     if (data.status === 'connected') {
@@ -650,4 +656,5 @@
 </body>
 
 </html>
+
 
