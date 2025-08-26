@@ -50,7 +50,7 @@ import fs from 'node:fs'
 
 // Configuration for API calls
 const CONFIG = {
-  host: 'http://192.168.50.101:11434',
+  host: 'https://265b6dc7de84.ngrok-free.app',
   model: 'gemma3:custom2',
   timeout: 30000, // 30 seconds
   retries: 3
@@ -392,5 +392,6 @@ async function main() {
   
   rl.close()
 }
+
 
 main().catch(console.error)
