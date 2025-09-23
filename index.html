@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>HKMA</title>
@@ -13,7 +14,7 @@
     /* Style for the game title image */
     #game-title {
       position: fixed;
-      top: 10%; /* Position at 10% height from the top */
+      top: 5%;
       left: 50%;
       transform: translateX(-50%); /* Center horizontally */
       width: 75vw; /* Fit 75% of screen width */
@@ -40,8 +41,10 @@
   <img id="game-title" src="title.png" alt="Game Title">
 
   <!-- Full-screen WebM video element -->
-  <video id="fullscreen-video" autoplay="false" loop="true" muted="true" playsinline>
-    <source src="Banana.webm" type="video/webm">  
+  <video id="fullscreen-video" loop="true" muted="true" playsinline>
+    <!-- <source src="Banana.webm" type="video/webm">   -->
+    <source src="Banana.mov" type='video/mp4; codecs="hvc1"'>
+    <source src="Banana.webm" type="video/webm"> 
     Your browser does not support the video tag.
   </video>
 
@@ -96,6 +99,7 @@
     // Show and play video, fade out title when marker is detected
     marker.addEventListener('markerFound', () => {
       video.style.display = 'block';
+      video.currentTime = 0;
       video.play(); // Start video playback
       title.style.opacity = '0'; // Fade out title
     });
