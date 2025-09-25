@@ -33,7 +33,6 @@
       object-fit: cover; /* Covers the screen without distortion */
       z-index: 10; /* Above title and AR content */
       display: none; /* Hidden initially */
-      transition: opacity 0.5s ease; /* Smooth fade animation */
     }
   </style>
 </head>
@@ -42,7 +41,7 @@
   <img id="game-title" src="title.png" alt="Game Title">
 
   <!-- Full-screen WebM video element -->
-  <video id="fullscreen-video" autoplay preload muted playsinline>
+  <video id="fullscreen-video" autoplay preload loop muted playsinline>
     <!-- <source src="Banana.webm" type="video/webm">   -->
     <source src="Banana.mov" type='video/mp4; codecs="hvc1"'>
     <source src="Banana.webm" type="video/webm"> 
@@ -77,8 +76,8 @@
     const marker = document.querySelector('a-nft');
     const video = document.querySelector('#fullscreen-video');
     const title = document.querySelector('#game-title');
-    let isTrigger = false;
-    let isPlaying = false;
+
+    video.play().catch(e => console.log('Autoplay prevented:', e));
 
     // Function to find the webcam video element and attach canplay event
     function waitForWebcam() {
@@ -102,50 +101,18 @@
     // Show and play video, fade out title when marker is detected
     marker.addEventListener('markerFound', () => {
       video.style.display = 'block';
+      video.currentTime = 0;
+      video.play(); // Start video playback
       title.style.opacity = '0'; // Fade out title
-
-      if(isTrigger === false && isPlaying === false){
-        isTrigger = true;
-        isPlaying = true;
-        video.loop = true;
-        video.style.opacity = '1';
-        video.currentTime = 0;
-        video.play(); // Start video playback
-      }
     });
 
-    video.addEventListener('playing', ()=>{
-      
-    })
-
-    video.addEventListener('ended',()=>{
-      isTrigger = false;
-      isPlaying = false;
-      // video.currentTime = 0;
-
-      if(video.loop === false){
-        setTimeout(()=>{
-          video.currentTime = 0;
-        },0.5)
-        video.style.opacity = '0';
-      }
-
-      video.style.display = 'none';
-      title.style.opacity = '1';
-
-    });
-
+    // Hide and reset video, fade in title when marker is lost
     marker.addEventListener('markerLost', () => {
-      video.loop = false;
+      video.style.display = 'none';
+      video.pause(); // Pause video
+      video.currentTime = 0; // Reset video timeline to start
+      title.style.opacity = '1'; // Fade in title
     });
-
-    // // Hide and reset video, fade in title when marker is lost
-    // marker.addEventListener('markerLost', () => {
-    //   video.style.display = 'none';
-    //   video.pause(); // Pause video
-    //   video.currentTime = 0; // Reset video timeline to start
-    //   title.style.opacity = '1'; // Fade in title
-    // });
   </script>
 </body>
 </html>
