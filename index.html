@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HKMA</title>
+  <meta property="og:site_name" content="Hong Kong Monetary Authority">
+  <meta property="og:title" content="Hong Kong Monetary Authority">
+  <meta property="og:description" content="Hong Kong Monetary Authority - AR Game">
+  <meta property="og:image" content="https://www.hkma.gov.hk/media/eng/banners-image/smart_consumer_v3_small.png">
+  <link rel="icon" href="favicon.jpg" type="image/jpeg" sizes="48x48">
+  <title>Hong Kong Monetary Authority - AR Game</title>
   <script src="aframe.min.js"></script>
   <script src="aframe-ar-nft.js"></script>
   <style>
@@ -33,7 +38,6 @@
       object-fit: cover; /* Covers the screen without distortion */
       z-index: 10; /* Above title and AR content */
       display: none; /* Hidden initially */
-      transition: opacity 0.5s ease; /* Smooth fade animation */
     }
   </style>
 </head>
@@ -108,7 +112,6 @@
         isTrigger = true;
         isPlaying = true;
         video.loop = true;
-        video.style.opacity = '1';
         video.currentTime = 0;
         video.play(); // Start video playback
       }
@@ -126,8 +129,7 @@
       if(video.loop === false){
         setTimeout(()=>{
           video.currentTime = 0;
-        },0.5)
-        video.style.opacity = '0';
+        },500)
       }
 
       video.style.display = 'none';
