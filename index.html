@@ -61,7 +61,6 @@
   <!-- A-Frame scene with AR.js for NFT image tracking -->
   <a-scene
     device-orientation-permission-ui="enabled: false" vr-mode-ui="enabled: false;" 
-    embedded
     arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best; debugUIEnabled: false;"
   >
     <!-- NFT marker for image tracking -->
@@ -105,7 +104,10 @@
 
     // Start checking for webcam video after scene is loaded
     scene.addEventListener('loaded', () => {
-      waitForWebcam();
+      //waitForWebcam();
+      setTimeout(()=>{
+        title.style.opacity = '1';
+      }, 1000);
     });
 
     // Show and play video, fade out title when marker is detected
